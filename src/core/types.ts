@@ -40,24 +40,68 @@ export interface WorldPosition extends Position {
     mapId: number; // The specific map ID the entity is on
 }
 
+
+
 // --------------------------------------------------------------------------
-// MAP & WORLD
+// TILED EDITOR SUPPORT
 // --------------------------------------------------------------------------
 
-export interface GameMap {
+// --------------------------------------------------------------------------
+// TILED JSON INTERFACES (Strictly matching Tiled Export)
+// --------------------------------------------------------------------------
+
+export interface TiledMap {
+    width: number;      // Map width in tiles
+    height: number;     // Map height in tiles
+    tilewidth: number;
+    tileheight: number;
+    layers: TiledLayer[];
+    tilesets: { firstgid: number, source: string }[];
+}
+
+export interface TiledLayer {
     id: number;
-    width: number; // Width in blocks (2x2 tiles)
-    height: number; // Height in blocks
-    data: TileID[]; // Flattened array of tile IDs (width * height * 4 usually if raw tiles, or just block IDs)
-    // In gen 1, maps are composed of "Blocks" which are 4x4 tiles (32x32px) or 2x2 tiles?
-    // Correction: Gen 1 uses 4x4 pixel tiles? No, 8x8 px tiles.
-    // Blocks are usually 2x2 tiles (16x16 px) or 4x4 tiles (32x32 px) depending on engine version.
-    // Pokémon Red uses 2x2 meta-tiles (16x16px) for the "Unit" of movement.
-    // Let's call them "Blocks" to match ASM.
-    blocks: number[]; // Block IDs from the blockset
-    borderBlock: number; // The block ID to replicate outside bounds
-    warpData: Warp[];
-    scriptId: number; // Function to run every frame (gamescript)
+    name: string;
+    type: 'tilelayer' | 'objectgroup';
+    visible: boolean;
+    data: number[]; // GIDs (0 = empty)
+    width: number;
+    height: number;
+    x: number;
+    y: number;
+    opacity: number;
+}
+
+export interface TiledTilesetData {
+    name: string;
+    image: string;      // "Pallet_Town_RBY.png"
+    imagewidth: number;
+    imageheight: number;
+    tilewidth: number;
+    tileheight: number;
+    margin: number;
+    spacing: number;
+    columns: number;
+    tilecount: number;
+    firstgid: number;   // Injected at runtime, not in the referenced JSON file usually
+}
+
+export interface Warp {
+    x: number; // Grid X
+    y: number; // Grid Y (derived from object x/y / 16)
+    destMap: string; // Filename (e.g. "Route1.json")
+    destWarpId: number; // Target ID on destination
+}
+
+// Runtime Map Structure
+export interface GameMap {
+    id: string | number;
+    width: number;
+    height: number;
+    layers: TiledLayer[];
+    tilesets: TiledTilesetData[];
+    collisionGrid?: boolean[]; // Optimized grid for physics
+    warps: Warp[];
 }
 
 export interface BlockDefinition {
@@ -95,13 +139,6 @@ export type CharacterState =
 export interface CharacterConfig {
     sheet: SpriteSheetConfig;
     animations: Record<CharacterState, Frame[]>;
-}
-
-export interface Warp {
-    x: number;
-    y: number;
-    destMap: number;
-    destWarpIndex: number; // Which warp index on the destination map
 }
 
 // --------------------------------------------------------------------------

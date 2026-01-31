@@ -39,3 +39,33 @@ To replicate the original *Pokémon Red* experience with 100% logical and visual
     ```bash
     pnpm dev
     ```
+
+## Engine Architecture
+
+### 1. Map Rendering System (Dynamic JSON Pipeline)
+The engine utilizes a custom **JSON-based rendering pipeline** that integrates directly with **Tiled Map Editor** exports, creating a flexible and data-driven world system.
+
+*   **Data Source:** Maps are exported as JSON files (`.json`) into `public/assets/tilesets/`. This allows "hot-swapping" map data without recompiling the codebase.
+*   **Recursive Loading:** `GameLoop.ts` implements a recursive fetching strategy (`loadMap()`). It first fetches the Map JSON, extracts referenced tilesets, and then fetches the Tileset JSONs + PNGs independently.
+*   **TileRenderer (Hard-Grid):** The renderer (`TileRenderer.ts`) parses the tileset configuration data (margin, spacing, tilewidth) *strictly* from the JSON. It calculates source coordinates (`sx`, `sy`) mathematically:
+    ```typescript
+    const sx = margin + (sheetCol * (tileW + spacing));
+    const sy = margin + (sheetRow * (tileH + spacing));
+    ```
+    This eliminates "magic numbers" and supports custom tilesets with varying padding or layouts.
+
+### 2. Collision System (Boolean Grid)
+Physics are handled via a pre-calculated 1D boolean array (`collisionGrid`) to maximize performance in the update loop (60fps).
+
+*   **Layer-Based:** The engine scans the Tiled map for a layer named `"collisions"`.
+*   **Binary Flattening:** Any tile ID > 0 in this layer is converted to `true` (solid). Empty tiles are `false` (walkable).
+*   **O(1) Check:** During movement, the engine checks: `if (currentMap.collisionGrid[y * width + x])` to determine solidity instantly.
+
+### 3. Warp / Teleport System (Object Layers)
+Transition logic is decoupled from code using Tiled's **Object Layers**, allowing level designers to define game logic visually.
+
+*   **Warps Layer:** Lookups are performed against an Object Group named `"warps"`.
+*   **Event Triggers:** When a player's grid coordinate matches a Warp Object's position, a trigger fires.
+*   **Metadata:** Destinations are defined in Tiled using **Custom Properties**:
+    *   `destMap` (string): The filename of the target map (e.g., `Route1.json`).
+    *   `destWarpId` (int): The ID of the specific spawn point in the destination map.

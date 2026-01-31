@@ -19,8 +19,8 @@ function App() {
     const gameLoop = new GameLoop(renderer); // Instantiate GameLoop
 
     const init = async () => {
-      await renderer.load();
-      gameLoop.start(); // Start GameLoop after renderer loads
+      // GameLoop loads assets internally now
+      gameLoop.start();
     };
 
     init();

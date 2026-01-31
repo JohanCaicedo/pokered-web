@@ -1,35 +1,197 @@
 {
-    "id": 1,
+    "id": "overworld",
+    "tile_size": 16,
+    "tileset_path": "/assets/tilesets/overworld.png",
     "definitions": {
-        "0": {
-            "id": 0,
+        "10": {
+            "id": 10,
+            "isSolid": true,
             "tiles": [
                 0,
                 0,
                 0,
                 0
-            ],
-            "isSolid": false
+            ]
         },
-        "1": {
-            "id": 1,
+        "11": {
+            "id": 11,
+            "isSolid": true,
             "tiles": [
                 1,
-                2,
-                3,
-                4
-            ],
-            "isSolid": true
+                1,
+                1,
+                1
+            ]
         },
-        "2": {
-            "id": 2,
+        "12": {
+            "id": 12,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "13": {
+            "id": 13,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "14": {
+            "id": 14,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "15": {
+            "id": 15,
+            "isSolid": false,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "16": {
+            "id": 16,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "17": {
+            "id": 17,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "18": {
+            "id": 18,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "19": {
+            "id": 19,
+            "isSolid": true,
+            "tiles": [
+                1,
+                1,
+                1,
+                1
+            ]
+        },
+        "20": {
+            "id": 20,
+            "isSolid": true,
+            "tiles": [
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        "21": {
+            "id": 21,
+            "isSolid": true,
+            "tiles": [
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        "22": {
+            "id": 22,
+            "isSolid": true,
+            "tiles": [
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        "23": {
+            "id": 23,
+            "isSolid": true,
+            "tiles": [
+                2,
+                2,
+                2,
+                2
+            ]
+        },
+        "50": {
+            "id": 50,
+            "isSolid": false,
+            "tiles": [
+                3,
+                3,
+                3,
+                3
+            ]
+        },
+        "52": {
+            "id": 52,
+            "isSolid": true,
+            "tiles": [
+                4,
+                4,
+                4,
+                4
+            ]
+        },
+        "55": {
+            "id": 55,
+            "isSolid": true,
             "tiles": [
                 5,
+                5,
+                5,
+                5
+            ]
+        },
+        "60": {
+            "id": 60,
+            "isSolid": true,
+            "tiles": [
+                5,
+                5,
+                5,
+                5
+            ]
+        },
+        "61": {
+            "id": 61,
+            "isSolid": false,
+            "tiles": [
                 6,
-                7,
-                8
-            ],
-            "isSolid": false
+                6,
+                6,
+                6
+            ]
         }
     }
 }

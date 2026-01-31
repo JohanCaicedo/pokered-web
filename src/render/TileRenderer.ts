@@ -3,20 +3,18 @@ import { ImageLoader } from './ImageLoader';
 
 /**
  * TileRenderer
- * Handles drawing 8x8 tiles from a tileset onto the Canvas.
+ * Handles drawing tiles and sprites onto the Canvas.
  */
 export class TileRenderer {
 
     private ctx: CanvasRenderingContext2D;
-    private tileset: HTMLImageElement | null = null;
-    private tilesetPath: string;
-
     private scrollX: number = 0;
     private scrollY: number = 0;
 
-    constructor(ctx: CanvasRenderingContext2D, tilesetPath: string = '/assets/tileset_general.png') {
+    private tilesets: Map<string, HTMLImageElement> = new Map();
+
+    constructor(ctx: CanvasRenderingContext2D) {
         this.ctx = ctx;
-        this.tilesetPath = tilesetPath;
     }
 
     setScroll(x: number, y: number): void {
@@ -24,12 +22,18 @@ export class TileRenderer {
         this.scrollY = Math.floor(y);
     }
 
-    async load(): Promise<void> {
-        try {
-            this.tileset = await ImageLoader.load(this.tilesetPath);
-        } catch (e) {
-            console.warn("Using fallback colors for tiles.");
+    async loadTilesetImage(path: string): Promise<HTMLImageElement | null> {
+        if (!this.tilesets.has(path)) {
+            try {
+                const img = await ImageLoader.load(path);
+                this.tilesets.set(path, img);
+                return img;
+            } catch (e) {
+                console.warn(`Failed to load tileset: ${path}`);
+                return null;
+            }
         }
+        return this.tilesets.get(path) || null;
     }
 
     clear(): void {
@@ -37,43 +41,74 @@ export class TileRenderer {
         this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
     }
 
+    drawLayer(layer: { data: number[], width: number }, tilesets: any[]): void {
+        const { data, width } = layer;
+
+        for (let i = 0; i < data.length; i++) {
+            const gid = data[i];
+            if (gid === 0) continue; // Empty
+
+            // Find Tileset
+            // Tilesets must be sorted by firstgid descending to find the correct range
+            // But usually Tiled JSON exports them in order. 
+            // We need the one where gid >= firstgid, and it's the largest such firstgid.
+
+            // Simple search (assuming pre-sorted or small list)
+            let tileset = null;
+            for (let t = tilesets.length - 1; t >= 0; t--) {
+                if (gid >= tilesets[t].firstgid) {
+                    tileset = tilesets[t];
+                    break;
+                }
+            }
+
+            if (!tileset) continue;
+
+            const img = this.tilesets.get('/assets/tilesets/' + tileset.image);
+            if (!img) continue;
+
+            // Math
+            const localId = gid - tileset.firstgid;
+            const tileW = tileset.tilewidth;
+            const tileH = tileset.tileheight;
+            const margin = tileset.margin || 0;
+            const spacing = tileset.spacing || 0;
+            const columns = tileset.columns;
+
+            const sheetCol = localId % columns;
+            const sheetRow = Math.floor(localId / columns);
+
+            const sx = margin + (sheetCol * (tileW + spacing));
+            const sy = margin + (sheetRow * (tileH + spacing));
+
+            const col = i % width;
+            const row = Math.floor(i / width);
+
+            const destX = col * 16; // Game assumes 16x16 grid
+            const destY = row * 16;
+
+            // Screen Coords
+            const screenX = destX - this.scrollX;
+            const screenY = destY - this.scrollY;
+
+            // Cull
+            if (screenX < -16 || screenX > 160 || screenY < -16 || screenY > 144) continue;
+
+            this.ctx.drawImage(img, sx, sy, tileW, tileH, screenX, screenY, 16, 16);
+        }
+    }
+
     /**
-     * Draws a single 8x8 tile at the specified pixel coordinates.
-     * Coordinates are WORLD SPACE. Camera scroll is applied automatically.
+     * Legacy draw (Raw ID) - Can be used for debug
      */
     drawTile(tileId: TileID, x: number, y: number): void {
+        // Placeholder for legacy raw tile drawing if needed
+        // For now, just a colored rect debug
         const screenX = x - this.scrollX;
         const screenY = y - this.scrollY;
 
-        // Optimization: Don't draw if off-screen
-        if (screenX < -TILE_SIZE || screenX > this.ctx.canvas.width ||
-            screenY < -TILE_SIZE || screenY > this.ctx.canvas.height) {
-            return;
-        }
-
-        if (!this.tileset) {
-            // Fallback: Checkered pattern if no tileset
-            // Use different colors for different dummy ids to see patterns
-            const r = (tileId * 37) % 255;
-            const g = (tileId * 17) % 255;
-            const b = (tileId * 7) % 255;
-            this.ctx.fillStyle = `rgb(${r},${g},${b})`;
-            this.ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
-            return;
-        }
-
-        // Assuming tileset is a grid. 
-        // Standard GB tilesets are often 128px wide (16 tiles across).
-        const TILES_PER_ROW = 16;
-
-        const sx = (tileId % TILES_PER_ROW) * TILE_SIZE;
-        const sy = Math.floor(tileId / TILES_PER_ROW) * TILE_SIZE;
-
-        this.ctx.drawImage(
-            this.tileset,
-            sx, sy, TILE_SIZE, TILE_SIZE, // Source (Sheet)
-            screenX, screenY, TILE_SIZE, TILE_SIZE    // Dest (Canvas)
-        );
+        this.ctx.fillStyle = '#fff';
+        this.ctx.fillRect(screenX, screenY, TILE_SIZE, TILE_SIZE);
     }
 
     /**
@@ -82,19 +117,10 @@ export class TileRenderer {
     drawBlock(blockId: number, x: number, y: number, blockset: BlockSet): void {
         const def = blockset.definitions[blockId];
         if (!def) {
-            // Render Error Placeholder (Red X or similiar)
             this.drawTile(0, x, y);
-            this.drawTile(0, x + 8, y);
-            this.drawTile(0, x, y + 8);
-            this.drawTile(0, x + 8, y + 8);
             return;
         }
-
-        // TL, TR, BL, BR
-        this.drawTile(def.tiles[0], x, y);
-        this.drawTile(def.tiles[1], x + 8, y);
-        this.drawTile(def.tiles[2], x, y + 8);
-        this.drawTile(def.tiles[3], x + 8, y + 8);
+        // Legacy implementation, kept for reference if needed
     }
 
     /**
@@ -128,16 +154,5 @@ export class TileRenderer {
                 screenX, screenY, w, h
             );
         }
-    }
-
-    /**
-     * Draws a region of tiles (useful for map rendering).
-     */
-    drawLayer(tiles: TileID[], width: number, startX: number, startY: number): void {
-        tiles.forEach((tile, index) => {
-            const col = index % width;
-            const row = Math.floor(index / width);
-            this.drawTile(tile, startX + col * TILE_SIZE, startY + row * TILE_SIZE);
-        });
     }
 }

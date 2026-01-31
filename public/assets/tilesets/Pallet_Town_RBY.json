@@ -1,0 +1,14 @@
+{ "columns":20,
+ "image":"Pallet_Town_RBY.png",
+ "imageheight":288,
+ "imagewidth":320,
+ "margin":0,
+ "name":"Pallet_Town_RBY",
+ "spacing":0,
+ "tilecount":360,
+ "tiledversion":"1.11.2",
+ "tileheight":16,
+ "tilewidth":16,
+ "type":"tileset",
+ "version":"1.10"
+}
