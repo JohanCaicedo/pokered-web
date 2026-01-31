@@ -1,74 +1,41 @@
-# React + TypeScript + Vite
+# pokered-web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A "one-to-one" web implementation of Pokémon Red (Game Boy, 1996), built with modern web technologies but adhering strictly to the original 8-bit architecture and constraints.
 
-Currently, two official plugins are available:
+## Mission
+To replicate the original *Pokémon Red* experience with 100% logical and visual fidelity. We prioritize the original assembly logic (bugs and all) over modern game design conventions, ensuring the underlying math and mechanics are identical to the source of truth.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Reference
+- **Source of Truth:** [pret/pokered](https://github.com/pret/pokered) (Original Game Boy ASM disassembly)
 
-## React Compiler
+## Tech Stack
+- **Languages:** TypeScript, React (UI Layer only)
+- **Build Tool:** Vite
+- **State Management:** Zustand (Decoupled Game Logic)
+- **Rendering:** Canvas API (2D Context) - Native 160x144 resolution
+- **Persistence:** IndexedDB (SRAM / .sav emulation)
+- **Audio:** Web Audio API
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Key Constraints
+1.  **Grid-Based Movement:** Strictly 16x16 pixel blocks. No smooth/sub-pixel movement logic.
+2.  **Visual Fidelity:** `image-rendering: pixelated` enforced. 8x8 tile rendering system.
+3.  **Integer Math:** Start logic uses integer-only math and bit-truncation to match the Game Boy CPU.
+4.  **No DOM in Game World:** The entire game world lives inside the Canvas. DOM is only used for non-diegetic UI (debug tools, outer container).
 
-## Expanding the ESLint configuration
+## Project Structure
+- `/src/core/`: Pure TypeScript logic engine (Physics, Math, Battle Systems).
+- `/src/render/`: Canvas rendering pipeline (Layers, Sprites, Tiles).
+- `/src/store/`: Game state management (Zustand).
+- `/src/ui/`: React components for the browser interface.
+- `/public/assets/`: Raw assets (Tilesets, Spritesheets).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-"# pokered-web" 
+## Setup
+1.  Clone the repository.
+2.  Install dependencies:
+    ```bash
+    pnpm install
+    ```
+3.  Run the development server:
+    ```bash
+    pnpm dev
+    ```
