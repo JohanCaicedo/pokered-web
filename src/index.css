@@ -21,7 +21,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   overflow: hidden;
-  background-color: #000;
+  background-color: #101010;
 }
 
 #game-root {
@@ -37,5 +37,5 @@ canvas {
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
-  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 }

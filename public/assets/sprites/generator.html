@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokered-Web: Red Sprite Generator</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #202020;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    canvas,
+    img {
+      border: 2px solid white;
+      margin-bottom: 20px;
+      image-rendering: pixelated;
+      width: 144px;
+      height: 192px;
+      background: #333;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="column">
+      <h2>Generated (Placeholder)</h2>
+      <canvas id="c" width="48" height="64"></canvas>
+      <button onclick="download()">Descargar Placeholder</button>
+    </div>
+    <div class="column">
+      <h2>Installed (PokemonRGOWSpritesV1Final.png)</h2>
+      <img src="PokemonRGOWSpritesV1Final.png" alt="Current Red Sprite" onerror="this.style.display='none'">
+      <p>Si esta imagen se ve bien, el juego también.</p>
+    </div>
+  </div>
+
+  <script>
+    const ctx = document.getElementById('c').getContext('2d');
+    const cols = 3; const rows = 4;
+    const w = 16; const h = 16;
+    // Colors for rows: Down(Red), Up(Blue), Left(Green), Right(Yellow)
+    const colors = ['#FF0000', '#0000FF', '#00FF00', '#FFFF00'];
+
+    // Draw Grid
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        const x = c * w; const y = r * h;
+
+        // Fill Bg
+        ctx.fillStyle = colors[r];
+        ctx.fillRect(x + 1, y + 1, w - 2, h - 2); // leave border
+
+        // Draw Face/Direction indicator
+        ctx.fillStyle = 'white';
+        if (r === 0) ctx.fillRect(x + 4, y + 10, 8, 2); // Down Eyes
+        if (r === 1) ctx.fillRect(x + 4, y + 4, 8, 4);  // Up Hair
+        if (r === 2) ctx.fillRect(x + 2, y + 6, 4, 4);  // Left Eye
+        if (r === 3) ctx.fillRect(x + 10, y + 6, 4, 4); // Right Eye
+
+        // Frame Indicator (0, 1, 2)
+        ctx.fillStyle = 'rgba(0,0,0,0.5)';
+        ctx.font = '8px monospace';
+        ctx.fillText(c, x + 2, y + 8);
+      }
+    }
+
+    function download() {
+      const canvas = document.getElementById('c');
+      const image = canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+      const link = document.createElement('a');
+      link.download = 'red.png';
+      link.href = image;
+      link.click();
+    }
+  </script>
+</body>
+
+</html>
